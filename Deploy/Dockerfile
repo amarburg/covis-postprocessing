@@ -14,6 +14,7 @@ RUN python3 setup.py install
 
 ## Copy in the test functions
 COPY test                /root/pycovis/test
+COPY scripts             /root/pycovis/scripts
 
 WORKDIR /root/pycovis
 RUN  ln -s /root/pycovis/pycovis-postprocess/input .
