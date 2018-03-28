@@ -32,6 +32,7 @@ pipeline:
   test_docker:
     image: amarburg/covis-postprocess:latest
     commands:
+      - ls -al
       - ./mw_python scripts/version.py
 
 
