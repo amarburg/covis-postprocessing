@@ -34,6 +34,7 @@ pipeline:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
+      - docker run -i --rm amarburg/covis-postprocess:lkatest --entrypoint /bin/ls -al
       - docker run -i --rm amarburg/covis-postprocess:latest < "scripts/version.py"
 
   ## Publish resulting image to DockerHub
