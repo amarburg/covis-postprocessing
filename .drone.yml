@@ -29,12 +29,12 @@ pipeline:
       - cd Deploy && docker build -t amarburg/covis-postprocess:latest -t amarburg/covis-postprocess:${DRONE_REPO_OWNER}-${DRONE_COMMIT_SHA} .
 
   ## Test a docker image
-  test_docker:
-    image: amarburg/covis-postprocess:latest
+  test_in_docker:
+    image: docker:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     commands:
-      - ls -al
-      - ./mw_python scripts/version.py
-
+      - docker run -i --rm amarburg/covis-postprocess:latest < "scripts/version.py"
 
   ## Publish resulting image to DockerHub
   publish_docker:
