@@ -30,11 +30,12 @@ pipeline:
       - cd Deploy && docker build -t amarburg/covis-postprocess:latest -t amarburg/covis-postprocess:${DRONE_REPO_OWNER}-${DRONE_COMMIT_SHA} .
 
   get_test_data:
-    image: minio/mc
+    image: minio/mc:latest
     volumes:
       - /srv/input:/input
     commands:
       - ping -c 5 ursine.san.apl.washington.edu
+      - mc version
       - mc config host add nas http://ursine.san.apl.washington.edu:9000/ "" ""
       - cd /input && mc cp --recursive nas/covis-test-data .
 
