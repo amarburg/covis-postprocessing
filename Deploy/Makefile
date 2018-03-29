@@ -41,13 +41,13 @@ help:
 ## Must be run on a machine with Matlab Compiler SDK installed
 
 COVIS_REPO=..
-COVIS_SRCS=${COVIS_REPO}/Common/input 
+COVIS_SRCS=${COVIS_REPO}/Common/input
 MCC=mcc
 
 build_matlab: ${COVIS_REPO}/Common/covis_*.m
 	mkdir -p pycovis-postprocess/
 	${MCC} -v -d pycovis-postprocess/ -W python:pycovis.postprocess -T link:lib $^
-	cp -r $$COVIS_SRCS} pycovis-postprocess/
+	cp -r $(COVIS_SRCS) pycovis-postprocess/
 
 
 .PHONY: build force_build test help build_matlab version
