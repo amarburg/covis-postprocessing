@@ -34,8 +34,6 @@ pipeline:
     volumes:
       - /srv/input:/input
     commands:
-      - ping -c 5 ursine.san.apl.washington.edu
-      - mc version
       - mc config host add nas http://nas-docker.san.apl.washington.edu:9000/ "" ""
       - cd /input && mc cp --recursive nas/covis-test-data .
 
@@ -46,6 +44,7 @@ pipeline:
       - /var/run/docker.sock:/var/run/docker.sock
       - /srv/input:/input
     commands:
+      - ls -l /input
       - docker run -i --rm amarburg/covis-postprocess:latest -m pytest
 
   ## Publish resulting image to DockerHub
