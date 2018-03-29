@@ -31,7 +31,7 @@ pipeline:
 
   get_test_data:
     image: minio/mc
-    mount:
+    volumes:
       - /srv/input:/input
     commands:
       - mc config host add nas http://ursine.san.apl.washington.edu:9000 "" ""
