@@ -6,6 +6,7 @@ pipeline:
     restore: true
     mount:
       - /var/lib/docker
+      - /srv/input
     volumes:
       - /tmp/cache:/cache
 
@@ -28,11 +29,20 @@ pipeline:
     commands:
       - cd Deploy && docker build -t amarburg/covis-postprocess:latest -t amarburg/covis-postprocess:${DRONE_REPO_OWNER}-${DRONE_COMMIT_SHA} .
 
+  get_test_data:
+    image: minio/mc
+    mount:
+      - /srv/input:/input
+    commands:
+      - mc config host add nas http://ursine.san.apl.washington.edu:9000 "" ""
+      - cd /input && mc cp --recursive nasanon/covis-test-data .
+
   ## Test a docker image
   pytest_in_docker:
     image: docker:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /srv/input:/input
     commands:
       - docker run -i --rm amarburg/covis-postprocess:latest -m pytest
 
@@ -55,6 +65,7 @@ pipeline:
     rebuild: true
     mount:
       - /var/lib/docker
+      - /srv/input
     volumes:
       - /tmp/cache:/cache
 
