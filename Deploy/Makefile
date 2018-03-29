@@ -1,28 +1,33 @@
 
 
-TAG = amarburg/covis-postprocess:latest
+IMAGE = amarburg/covis-postprocess:latest
 
 build:
-	docker build . --tag ${TAG}
+	docker build . --IMAGE ${IMAGE}
 
 force_build:
-	docker build . --tag ${TAG} --no-cache
+	docker build . --IMAGE ${IMAGE} --no-cache
 
 push: build
-	docker push ${TAG}
+	docker push ${IMAGE}
 
 test: build
-	docker run --rm -v /Users/aaron/workspace/COVIS/covis-test-data:/input:ro -v output:/output ${TAG} -m pytest
-
+	docker run --rm \
+						-v $(shell pwd)/input:/input:ro \
+						-v $(shell pwd)/output:/output \
+						${IMAGE} -m pytest
 
 
 ## Some examples of running python scripts in the Docker image...
 version:
 	./run_in_docker.sh scripts/version.py
+	docker run --rm $(IMAGE)
 
 imaging:
-	DOCKER_OPTS="-v /Users/aaron/workspace/COVIS/covis-test-data:/input:ro -v /Users/aaron/workspace/COVIS/docker-covis-postprocess/output:/output" \
-	./run_in_docker.sh scripts/imaging.py
+	docker run --rm \
+					-v $(shell pwd)/input:/input:ro \
+					-v $(shell pwd)/output:/output \
+ 					scripts/imaging.py
 
 
 help:
@@ -36,12 +41,13 @@ help:
 ## Must be run on a machine with Matlab Compiler SDK installed
 
 COVIS_REPO=..
+COVIS_SRCS=${COVIS_REPO}/Common/input
 MCC=mcc
 
 build_matlab: ${COVIS_REPO}/Common/covis_*.m
 	mkdir -p pycovis-postprocess/
 	${MCC} -v -d pycovis-postprocess/ -W python:pycovis.postprocess -T link:lib $^
-	cp -r ${COVIS_REPO}/Common/input pycovis-postprocess/
+	cp -r $(COVIS_SRCS) pycovis-postprocess/
 
 
 .PHONY: build force_build test help build_matlab version
