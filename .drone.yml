@@ -34,7 +34,7 @@ pipeline:
     volumes:
       - /srv/input:/input
     commands:
-      - mc config host add nas http://ursine.san.apl.washington.edu:9000/ "" ""
+      - mc config host add nas http://192.168.14.10:9000/ "" ""
       - cd /input && mc cp --recursive nas/covis-test-data .
 
   ## Test a docker image
