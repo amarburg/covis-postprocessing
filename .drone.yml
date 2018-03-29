@@ -36,7 +36,7 @@ pipeline:
     commands:
       - ping -c 5 ursine.san.apl.washington.edu
       - mc version
-      - mc config host add nas http://ursine.san.apl.washington.edu:9000/ "" ""
+      - mc config host add nas http://nas-docker.san.apl.washington.edu:9000/ "" ""
       - cd /input && mc cp --recursive nas/covis-test-data .
 
   ## Test a docker image
