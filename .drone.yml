@@ -34,8 +34,8 @@ pipeline:
     volumes:
       - /srv/input:/input
     commands:
-      - mc config host add nas http://ursine.san.apl.washington.edu:9000 "" ""
-      - cd /input && mc cp --recursive nasanon/covis-test-data .
+      - mc config host add nas http://ursine.san.apl.washington.edu:9000/ "" ""
+      - cd /input && mc cp --recursive nas/covis-test-data .
 
   ## Test a docker image
   pytest_in_docker:
