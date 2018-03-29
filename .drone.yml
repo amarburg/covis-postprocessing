@@ -34,7 +34,7 @@ pipeline:
     volumes:
       - /srv/input:/input
     commands:
-      - mc ls play
+      - ping -c 5 ursine.san.apl.washington.edu
       - mc config host add nas http://ursine.san.apl.washington.edu:9000/ "" ""
       - cd /input && mc cp --recursive nas/covis-test-data .
 
