@@ -27,7 +27,7 @@ pipeline:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     commands:
-      - cd Deploy && docker build -t amarburg/covis-postprocess:latest -t amarburg/covis-postprocess:${DRONE_REPO_OWNER}-${DRONE_COMMIT_SHA} .
+      - cd Deploy && docker build -t amarburg/covis-postprocess:latest -t amarburg/covis-postprocess:${DRONE_REPO_OWNER}-latest -t amarburg/covis-postprocess:${DRONE_REPO_OWNER}-${DRONE_COMMIT_SHA} .
 
   get_test_data:
     image: minio/mc:latest
@@ -55,6 +55,7 @@ pipeline:
     commands:
       - docker login -u $${DOCKER_USERNAME} -p $${DOCKER_PASSWORD}
       - docker push amarburg/covis-postprocess:latest
+      - docker push amarburg/covis-postprocess:${DRONE_REPO_OWNER}-latest
       - docker push amarburg/covis-postprocess:${DRONE_REPO_OWNER}-${DRONE_COMMIT_SHA}
     secrets:
       - docker_username
