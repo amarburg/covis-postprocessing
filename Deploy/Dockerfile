@@ -7,8 +7,6 @@ ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libexpat.so
 RUN pip3 install pytest
 
 COPY pycovis-postprocess /root/pycovis/pycovis-postprocess
-COPY mw_python           /root/pycovis/
-
 WORKDIR /root/pycovis/pycovis-postprocess
 RUN python3 setup.py install
 
@@ -22,4 +20,6 @@ RUN  ln -s /root/pycovis/pycovis-postprocess/input .
 VOLUME  /input
 VOLUME  /output
 
-ENTRYPOINT ["./mw_python"]
+ENV LD_LIBRARY_PATH=$MATLAB_LD_LIBRARY_PATH:$LD_LIBRARY_PATH
+
+ENTRYPOINT ["python3"]
