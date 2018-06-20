@@ -2,6 +2,15 @@
 
 IMAGE = amarburg/covis-postprocess:latest
 
+help:
+	@echo "make build           Build the docker image"
+	@echo "make force_build     Build the docker image with --no-cache"
+	@echo "make push            Push the docker image to DockerHub"
+	@echo "make test            Run pytest in the docker image"
+	@echo "make version         Demo which runs scripts/version.py in the Docker image"
+	@echo "make build_matlab    Use Matlab compiler to build Python package 'pycovis-postprocess'"
+
+
 #== Tasks related to building and testing Docker scripts ==
 build:       pycovis-postprocess/setup.py
 	docker build --tag ${IMAGE} .
@@ -32,13 +41,6 @@ imaging:
  					scripts/imaging.py
 
 
-help:
-	echo "make build           Build the docker image"
-	echo "make force_build     Build the docker image with --no-cache"
-	echo "make test            Run pytest in the docker image"
-	echo "make build_matlab    "
-
-
 ##== Matlab packaging rules. ==
 ## Must be run on a machine with Matlab Compiler SDK installed
 
@@ -53,4 +55,4 @@ pycovis-postprocess/setup.py: ${COVIS_REPO}/Common/covis_*.m
 	${MCC} -v -d pycovis-postprocess/ -W python:pycovis.postprocess -T link:lib $^
 	cp -r $(COVIS_SRCS) pycovis-postprocess/
 
-.PHONY: build force_build test help build_matlab version
+.PHONY: build force_build test help build_matlab version imaging
