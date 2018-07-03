@@ -48,9 +48,9 @@ MCC=mcc
 
 build_matlab: pycovis-postprocess/setup.py
 
-pycovis-postprocess/setup.py: ${COVIS_REPO}/Common/covis_*.m
+pycovis-postprocess/setup.py: ${COVIS_REPO}/Common/covis_*.m ${COVIS_REPO}/Imaging/covis_*.m
 	mkdir -p pycovis-postprocess/
 	${MCC} -v -d pycovis-postprocess/ -W python:pycovis.postprocess -T link:lib $^
 	cp -r $(COVIS_SRCS) pycovis-postprocess/
 
-.PHONY: build force_build test help build_matlab version
+.PHONY: build force_build test help build_matlab version imaging
