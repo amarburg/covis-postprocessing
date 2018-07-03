@@ -3,52 +3,52 @@ function matfile = covis_imaging_sweep(swp_file, outputdir, json_file)
 % Process and grid covis IMAGING sweep data onto a rectangular grid.
 %
 % The inputs to this function:
-%   swp_file - the sweep archive file 
+%   swp_file - the sweep archive file
 %   outputdir - directory to save covis structure as mat file
-%   json_file - the name of the json input parameter file 
+%   json_file - the name of the json input parameter file
 % The return string is the mat file name that the covis data was saved.
 %
-% The sweep archive directory contains a set of files for each Covis sweep. 
-% A sweep is a complete up and down scan if the sonar in elevation.  
+% The sweep archive directory contains a set of files for each Covis sweep.
+% A sweep is a complete up and down scan if the sonar in elevation.
 % The data files in the sweep directory must conform to the file name
 % convensions and data formats defined in the document Covis_data.pdf and
 % the R7038 data format defined in the document Reson_data_format.html.
 % Meta data for the sweep is contained in a sweep.json file.
 % The meta data each ping is contianed a the file of the form
 % ('rec_7000_%06d.json',ping_number) and the associated binary data file
-% name has the form ('rec_7038_%06d.bin',ping_number). 
+% name has the form ('rec_7038_%06d.bin',ping_number).
 % The binary data files (*.bin) contain element level (quadrature) samples.
 % The attitude data for each ping is contained in the 'index.csv' file.
-% JSON files are parsed using the function 'parse_json'.  
+% JSON files are parsed using the function 'parse_json'.
 %
-% Processing parameters are read from an ascii JSON formatted parameter 
-% file (json_file) that contains all the information needed to process 
-% a covis sweep. 
-% If json_file = [] or zero then a defaults file 
+% Processing parameters are read from an ascii JSON formatted parameter
+% file (json_file) that contains all the information needed to process
+% a covis sweep.
+% If json_file = [] or zero then a defaults file
 % ('input/covis_image.json') is used.
 %
 % This function returns a structure (covis) that contains all the data and
-% meta data for the processed sweep. Processed data is gridded onto an 
-% evenly spaced rectangular grid stored in the covis.grid structure.  
-% Gridding is done using the 'l3grid' function and nearest neighbor 
+% meta data for the processed sweep. Processed data is gridded onto an
+% evenly spaced rectangular grid stored in the covis.grid structure.
+% Gridding is done using the 'l3grid' function and nearest neighbor
 % linear interpolation method.
 % The data grid is defined in the fixed world coordinate system with the
-% sonar in the center of the rectangular coordinate system. 
+% sonar in the center of the rectangular coordinate system.
 % The y-direction is North, x-direction is East, and z-direction is Up.
 % Coordinate transformations from the sensor coordinate system of
 % (range, beam azimuth) are done using the function covis_coords().
-% 
+%
 % ----------
-% This program is free software distributed in the hope that it will be useful, 
+% This program is free software distributed in the hope that it will be useful,
 % but WITHOUT ANY WARRANTY. You can redistribute it and/or modify it.
-% Any modifications of the original software must be distributed in such a 
+% Any modifications of the original software must be distributed in such a
 % manner as to avoid any confusion with the original work.
-% 
-% Please acknowledge the use of this software in any publications arising  
+%
+% Please acknowledge the use of this software in any publications arising
 % from research that uses it.
-% 
+%
 % ----------
-%  Version 1.0 - 10/2010,  
+%  Version 1.0 - 10/2010,
 %    cjones@apl.washington.edu, drj@apl.washington.edu, bemis@rci.rutgers.edu
 %  Version 1.1 - 10/2011, cjones@apl.washington.edu
 %
@@ -56,7 +56,7 @@ function matfile = covis_imaging_sweep(swp_file, outputdir, json_file)
 global Verbose;
 
 % Extract a COVIS archive, if it hasn't been unpacked already
-[swp_path, swp_name] = covis_extract(swp_file, 0);
+[swp_path, swp_name] = covis_extract(swp_file, '');
 swp_dir = fullfile(swp_path, swp_name);
 
 % check that archive dir exists
@@ -69,7 +69,7 @@ end
 matfile = fullfile(outputdir, [swp_name '.mat']);
 if(exist(matfile,'file'))
     fprintf('Warning: not overwiting %s\n', matfile);
-    return 
+    return
 end
 
 
@@ -84,7 +84,7 @@ swp = jsondecode(json_str);
 
 % set sweep path and name
 swp.path = swp_path;
-swp.name = swp_name; 
+swp.name = swp_name;
 
 % parsing the json input file for the user supplied parameters
 if isempty(json_file) || all(json_file == 0)
@@ -93,7 +93,7 @@ if isempty(json_file) || all(json_file == 0)
 end
 % check that json input file exists
 if ~exist(json_file,'file')
-    error('JSON input file does not exist');
+    fprintf('JSON input file %s does not exist\n', json_file);
     return;
 end
 json_str = fileread(json_file);
@@ -106,7 +106,7 @@ end
 
 
 Verbose = covis.user.verbose;
-Debug_Plot = covis.user.debug; 
+Debug_Plot = covis.user.debug;
 
 % define a 3D rectangular data grid
 [covis.grid] = covis_rectgrid(covis.grid);
@@ -207,30 +207,30 @@ range_stop = (covis.processing.bounds.range.stop);
 % loop over bursts
 nbursts = length(burst);
 for nb = 1:nbursts
-    
+
     % check elevation
     if((burst(nb).elev < elev_start) | (burst(nb).elev > elev_stop))
         nb_start = nb + 1;
         continue;
     end
-    
+
     if(Verbose)
         fprintf('Burst %d: Elevation %0.2f\n', nb, burst(nb).elev);
     end;
-     
+
     npings = burst(nb).npings;
-    
+
     % check that there's enough pings in burst
-    if((npings < 2) & strfind(dsp.ping_combination.mode,'diff')) 
+    if((npings < 2) & strfind(dsp.ping_combination.mode,'diff'))
         fprintf('Not enough pings in burst\n');
         continue;
     end
-    
+
     % loop over pings in a burst, read data and hold onto it
     for np = 1:npings
-        
+
         n = burst(nb).start_ping + (np-1); % ping number
-        
+
         % parse filenames
         bin_file = file(n).name;
         [type,ping_num] = strread(bin_file,'rec_%d_%d.bin');
@@ -238,7 +238,7 @@ for nb = 1:nbursts
             fprintf('Ping number mismatch: %d\n', n);
         end
         json_file = sprintf('rec_7000_%06d.json',ping_num);
-        
+
         % read ping meta data from fson file
         json_str = fileread(fullfile(swp_dir, json_file));
         json = jsondecode(json_str);
@@ -256,14 +256,14 @@ for nb = 1:nbursts
 
         % read raw element quadrature data
         [hdr, data] = covis_read(fullfile(swp_dir, bin_file));
-        
+
         if(np == 1)
             monitor = data;
         end
- 
+
         % Correct phase using first ping as reference
         data = covis_phase_correct(png(n), monitor, data);
-        
+
         % Apply Filter to data
         [data, filt, png(n)] = covis_filter(data, filt, png(n));
 
@@ -275,7 +275,7 @@ for nb = 1:nbursts
         bfm.last_samp = hdr.last_samp;
         % beamform
         [bfm, bf_sig(:,:,np)] = covis_beamform(bfm, data);
-        
+
         % save ping in the burst array
         bf_sig(:,:,np) = covis_calibration(bf_sig(:,:,np), bfm, png(n), cal);
 
@@ -291,9 +291,9 @@ for nb = 1:nbursts
         %axis([5 25 25 45]);
         %%colorbar;
         %pause;
-        
+
     end
-    
+
     % calc the value to grid
     if(strfind(dsp.ping_combination.mode,'diff'))
         % mean of the abs^2 of diff between pings
@@ -302,25 +302,25 @@ for nb = 1:nbursts
         % mean of the intensity of the pings
         v = mean(abs(bf_sig).^2, 3);
     end
-    
+
     n = burst(nb).start_ping; % ping number
     % define sonar attitude (use TCM6 angles)
     elev = (pi/180) * png(n).tcm.kPAngle;
     roll = (pi/180) * png(n).tcm.kRAngle;
     yaw = (pi/180) * png(n).tcm.kHeading;
-    
+
     % transform sonar coords into world coords
     range = bfm.range;
     azim = bfm.angle;
     [xv, yv, zv] = covis_coords(origin, range, azim, yaw, roll, elev);
-    
+
     % grid the ping data
     [grd.v,grd.w] = l3grid(xv,yv,zv,v,grd.x,grd.y,grd.z,grd.v,grd.w);
-    
+
     if(Verbose > 2)
         fprintf('finished gridding: %s\n',datestr(now))
     end
-    
+
     if(Debug_Plot)
         figure(1); clf;
         %pcolor(xv,yv,v); shading flat; axis equal; caxis([0 1]);
@@ -339,7 +339,7 @@ for nb = 1:nbursts
         refresh;
         %pause;
     end;
-    
+
 end   % End loop over bursts
 
 % normalize the grid with the grid weights
@@ -357,7 +357,7 @@ covis.processing.filter = filt;
 covis.burst = burst;
 
 % save covis structure in a mat file for later use
-if(outputdir)    
+if(outputdir)
     if(~exist(outputdir,'dir'))
         mkdir(outputdir);
     end
@@ -366,7 +366,3 @@ if(outputdir)
 end
 
 end
-
-
-
-

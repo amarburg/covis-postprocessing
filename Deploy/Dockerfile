@@ -6,16 +6,26 @@ ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libexpat.so
 
 RUN pip3 install pytest
 
-COPY pycovis-postprocess /root/pycovis/pycovis-postprocess
-WORKDIR /root/pycovis/pycovis-postprocess
-RUN python3 setup.py install
+##
+## Install pycovis.matlab
+##
+COPY pycovis-matlab /root/pycovis-matlab
+WORKDIR /root/pycovis-matlab
+RUN pip3 install -e .
+
+##
+## Install pycovis.postprocess
+##
+COPY pycovis-postprocess /root/pycovis-postprocess
+WORKDIR /root/pycovis-postprocess
+RUN pip3 install -e .
 
 ## Copy in the test functions
-COPY test                /root/pycovis/test
-COPY scripts             /root/pycovis/scripts
+COPY test                /root/test
+COPY scripts             /root/scripts
 
-WORKDIR /root/pycovis
-RUN  ln -s /root/pycovis/pycovis-postprocess/input .
+WORKDIR /root
+RUN  ln -s /root/pycovis-matlab/input .
 
 VOLUME  /input
 VOLUME  /output

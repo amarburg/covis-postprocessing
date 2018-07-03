@@ -2,11 +2,20 @@
 
 IMAGE = amarburg/covis-postprocess:latest
 
+help:
+	@echo "make matlab          Use Matlab compiler to build Python package 'pycovis-postprocess'"
+	@echo "make build           Build the docker image"
+	@echo "make force_build     Build the docker image with --no-cache"
+	@echo "make push            Push the docker image to DockerHub"
+	@echo "make test            Run pytest in the docker image"
+	@echo "make version         Demo which runs scripts/version.py in the Docker image"
+
+
 #== Tasks related to building and testing Docker scripts ==
-build:       pycovis-postprocess/setup.py
+build:       pycovis-matlab/setup.py pycovis-postprocess/pycovis/postprocess/*.py
 	docker build --tag ${IMAGE} .
 
-force_build: pycovis-postprocess/setup.py
+force_build: pycovis-matlab/setup.py
 	docker build --tag ${IMAGE} --no-cache .
 
 push: build
@@ -22,35 +31,29 @@ test: build
 
 
 #== Some examples of running python scripts in the Docker image... ==
-version:
-	docker run -i --rm amarburg/covis-postprocess scripts/version.py
+version: build
+	docker run -i --rm ${IMAGE} scripts/version.py
 
-imaging:
+imaging: build
+	rm -rf $(shell pwd)/test_data/output/*
 	docker run --rm \
-					-v $(shell pwd)/input:/input:ro \
-					-v $(shell pwd)/output:/output \
- 					scripts/imaging.py
-
-
-help:
-	echo "make build           Build the docker image"
-	echo "make force_build     Build the docker image with --no-cache"
-	echo "make test            Run pytest in the docker image"
-	echo "make build_matlab    "
+					-v $(shell pwd)/test_data/input:/input \
+					-v $(shell pwd)/test_data/output:/output \
+ 					${IMAGE} scripts/process_sweep.py
 
 
 ##== Matlab packaging rules. ==
 ## Must be run on a machine with Matlab Compiler SDK installed
 
 COVIS_REPO=..
-COVIS_SRCS=${COVIS_REPO}/Common/input
+COVIS_INPUT=${COVIS_REPO}/Common/input
 MCC=mcc
 
-build_matlab: pycovis-postprocess/setup.py
+matlab: pycovis-matlab/setup.py
 
-pycovis-postprocess/setup.py: ${COVIS_REPO}/Common/covis_*.m ${COVIS_REPO}/Imaging/covis_*.m
-	mkdir -p pycovis-postprocess/
-	${MCC} -v -d pycovis-postprocess/ -W python:pycovis.postprocess -T link:lib $^
-	cp -r $(COVIS_SRCS) pycovis-postprocess/
+pycovis-matlab/setup.py: ${COVIS_REPO}/Common/*.m ${COVIS_REPO}/Imaging/*.m
+	mkdir -p pycovis-matlab/
+	${MCC} -v -d pycovis-matlab/ -W python:pycovis.matlab -T link:lib $^
+	cp -r $(COVIS_INPUT) pycovis-matlab/
 
 .PHONY: build force_build test help build_matlab version imaging
