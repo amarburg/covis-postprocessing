@@ -7,8 +7,9 @@ def process_sweep(input, outdir):
         inpath = Path(input)
         matfile = pp.covis_imaging_sweep(input, outdir, '')
 
-        covis_imaging_plot(matfile, outdir, '')
+        imgfile = pp.covis_imaging_plot(matfile, outdir, '')
 
+    return [matfile, imgfile]
 
 # if __name__ == "__main__":
 #     testFile = "/input/imaging/APLUWCOVISMBSONAR001_20111001T030039.826Z-IMAGING.tar.gz"

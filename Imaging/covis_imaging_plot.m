@@ -3,33 +3,33 @@ function imgfile = covis_imaging_plot(matfile, outputdir, json_file)
 % Plot covis image grid as isosurfaces
 %
 % The grid data is loaded from the matfile.
-% Plotting parameters are defined with the corresponding 
-% JSON parameter files (json_file).  If no json file is supplied, 
+% Plotting parameters are defined with the corresponding
+% JSON parameter files (json_file).  If no json file is supplied,
 % the default covis_image_plot.json file is used.
 % The return string is the figure file name.
 %
 % ----------
 % This program is free software distributed in the hope that it will be useful,
 % but WITHOUT ANY WARRANTY. You can redistribute it and/or modify it.
-% Any modifications of the original software must be distributed in such a 
+% Any modifications of the original software must be distributed in such a
 % manner as to avoid any confusion with the original work.
-% 
-% Please acknowledge the use of this software in any publications arising  
+%
+% Please acknowledge the use of this software in any publications arising
 % from research that uses it.
-% 
+%
 % ---------------------------
-%  Version 1.0 - 10/2010,  
+%  Version 1.0 - 10/2010,
 %    cjones@apl.washington.edu
 %
 
 imgfile = 0;
 
 % pick a mat file, if none given
-if(isempty(matfile) | (matfile == 0)) 
+if(isempty(matfile) | (matfile == 0))
    [mat_name, mat_path] = uigetfile(fullfile('*.mat'), ...
        'Pick a COVIS MAT file');
-   if(mat_name == 0) 
-      return; 
+   if(mat_name == 0)
+      return;
    end
    matfile = fullfile(mat_path, mat_name);
 end
@@ -53,11 +53,11 @@ grd = covis.grid; % intensity grid
 
 % parsing the json file
 %  which contains all the user supplied parameters
-if(isempty(json_file) | (json_file==0)) 
-   json_file = fullfile('input','covis_image_plot.json');
+if(isempty(json_file) | (json_file==0))
+   json_file = fullfile('input','covis_image_plot_new.json');
 end
 json_str = fileread(json_file);
-input = jsondecode(json_str);
+input = jsondecode(json_str)
 
 if(isfield(input,'verbose'))
     Verbose = input.verbose;
@@ -73,9 +73,9 @@ plot_bathy = input.plot_bathy;
 if(~isfield(input,'isosurface'))
    return;
 end
-isosurf = input.isosurface;
+isosurf = input.isosurface
 
-if(~isfield(input,'name')) 
+if(~isfield(input,'name'))
    input.name = covis.grid.name;
 end
 
@@ -97,8 +97,8 @@ h = figure(fig_num); clf;
 set(gca,'Position',[0.11 0.09 0.775 0.815],'FontSize',30)
 
 % figure visibiliby
-if(input.visible == 0) 
-    set(h, 'Visible', 'off'); 
+if(input.visible == 0)
+    set(h, 'Visible', 'off');
 end
 
 % grid values
@@ -126,9 +126,9 @@ mask = zeros(size(vg));
 % mask the data grid using the user inputs
 if(isfield(input,'mask'))
     for n=1:length(input.mask)
-        
+
         m = input.mask(n)
-        
+
         switch m.type
             case'cylinder'
                 x0 = m.x;
@@ -179,7 +179,8 @@ end
 vg(~mask) = nan;
 
 % plot isosurfaces
-%figure(h); 
+%figure(h);
+
 hold on;
 for n=1:length(isosurf)
    v = vg;
@@ -225,13 +226,13 @@ end
 
 %save plot to file
 if(exist('outputdir','var') && any(outputdir~=0) && ischar(outputdir))
-    
+
     % creat output dir if it doesn't exist
-    if(~exist(outputdir,'dir')) 
+    if(~exist(outputdir,'dir'))
         warning(['output directory not found, will create one here: ' outputdir])
         mkdir(outputdir);
     end
-    
+
     % always make a fig file
     figfile = fullfile(outputdir, [input.name '.fig']);
     if(Verbose)
@@ -241,7 +242,7 @@ if(exist('outputdir','var') && any(outputdir~=0) && ischar(outputdir))
         fprintf('Warning: overwiting %s\n', figfile);
     end
     saveas(h, figfile);
-    
+
     % figure type, must be one of formats that the 'saveas' function accepts
     if(isfield(input,'format'))
         type = input.format;
@@ -255,9 +256,7 @@ if(exist('outputdir','var') && any(outputdir~=0) && ischar(outputdir))
         set(h,'PaperUnits','points','PaperPosition',[0 0 3300 2550],...
             'PaperPositionMode', 'manual','PaperOrientation','portrait','renderer','zbuffer');
         print(h,'-dpng','-r71',imgfile)
-%         saveas(h, imgfile); 
+%         saveas(h, imgfile);
     end
-    
+
 end
-
-

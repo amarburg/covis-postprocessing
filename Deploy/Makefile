@@ -35,7 +35,6 @@ version: build
 	docker run -i --rm ${IMAGE} scripts/version.py
 
 imaging: build
-	rm -rf $(shell pwd)/test_data/output/*
 	docker run --rm \
 					-v $(shell pwd)/test_data/input:/input \
 					-v $(shell pwd)/test_data/output:/output \
@@ -56,4 +55,4 @@ pycovis-matlab/setup.py: ${COVIS_REPO}/Common/*.m ${COVIS_REPO}/Imaging/*.m
 	${MCC} -v -d pycovis-matlab/ -W python:pycovis.matlab -T link:lib $^
 	cp -r $(COVIS_INPUT) pycovis-matlab/
 
-.PHONY: build force_build test help build_matlab version imaging
+.PHONY: build force_build test help matlab version imaging
