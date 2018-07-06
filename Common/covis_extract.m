@@ -53,13 +53,21 @@ end
 % check if archive has already been extracted in the same location
 % as the filename
 if(exist(fullfile(swp_path, swp_name), 'dir'))
+    % Strip and trailing delimiters if they exist. This will let fileparts
+    % correctly separate the swp_name as the last element in the path
+    filename = strip(filename,'right','/')
+    filename = strip(filename,'right','\')
+
+    [swp_path, swp_name, ext] = fileparts(filename);
+    swp_name = strcat(swp_name,ext)
+
     % return with swp_path set to same location as filename
-    fprintf('COVIS archive is already extracted, using %s\n', [swp_path swp_name]);
+    fprintf('COVIS archive is already extracted, using %s %s\n', swp_path, swp_name);
     return;
 end
 
 % if no outputdir is given, extract it in the same location as filename
-if(isempty(outputdir)) 
+if(isempty(outputdir))
    outputdir = swp_path;
 end
 
