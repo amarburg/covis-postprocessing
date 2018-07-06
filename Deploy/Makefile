@@ -22,8 +22,9 @@ push: build
 	docker push ${IMAGE}
 
 test: build
+	mkdir -p output/
 	docker run --rm \
-						-v $(shell pwd)/input:/input:ro \
+						-v $(shell pwd)/covis-test-data/old-covis-nas1/raw/2011/10/01/:/input \
 						-v $(shell pwd)/output:/output \
 						${IMAGE} -m pytest
 
@@ -35,9 +36,10 @@ version: build
 	docker run -i --rm ${IMAGE} scripts/version.py
 
 imaging: build
+	mkdir -p output/
 	docker run --rm \
-					-v $(shell pwd)/test_data/input:/input \
-					-v $(shell pwd)/test_data/output:/output \
+					-v $(shell pwd)/covis-test-data/old-covis-nas1/raw/2011/10/01/:/input \
+					-v $(shell pwd)/output:/output \
  					${IMAGE} scripts/process_sweep.py
 
 
