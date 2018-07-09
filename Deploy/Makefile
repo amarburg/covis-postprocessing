@@ -55,14 +55,25 @@ MCC=mcc
 
 matlab: pycovis-matlab/setup.py
 
-pycovis-matlab/setup.py: ${COVIS_REPO}/Common/*.m ${COVIS_REPO}/Imaging/*.m
+GITREV=${shell git rev-parse HEAD }
+GITTAG=${shell git describe --tags }
+
+tmp/static_git_info.m:
+	mkdir -p tmp/
+	echo "function [gitinfo] = static_git_info()" > $@
+	printf "   gitinfo = struct;\n" >> $@
+	printf "   gitinfo.gitrev = \'%s\';\n" ${GITREV} >> $@
+	printf "   gitinfo.gittags = \'%s\';\n" ${GITTAG} >> $@
+
+
+pycovis-matlab/setup.py: ${COVIS_REPO}/Common/*.m ${COVIS_REPO}/Imaging/*.m tmp/static_git_info.m
 	mkdir -p pycovis-matlab/
 	${MCC} -v -d pycovis-matlab/ -W python:pycovis.matlab -T link:lib $^
 	cp -r $(COVIS_INPUT) pycovis-matlab/
 
 
 clean:
-		rm -rf pycovis-matlab
+		rm -rf pycovis-matlab/ tmp/
 
 
 .PHONY: build force_build test help matlab version imaging clean

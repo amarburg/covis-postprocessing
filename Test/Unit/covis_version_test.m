@@ -1,2 +1,2 @@
-verstr = covis_version()
-assert(strcmp(verstr,'')==0)
+verstr = covis_version();
+assert(strcmp(verstr,'')==0);
