@@ -1,4 +1,4 @@
-function matfile = covis_imaging_sweep(swp_file, varargin)
+function matfile = covis_imaging_sweep(swp_file, outputdir, varargin)
 %
 % Process and grid covis IMAGING sweep data onto a rectangular grid.
 %
@@ -71,8 +71,7 @@ global Verbose;
 
 % Check for other args
 p = inputParser;
-addParameter(p,'outputdir','');
-addParameter(p,'json_file','',@isstring);
+addParameter(p,'json_file',input_json_path('covis_image.json'),@isstring);
 addParameter(p,'metadata',0,@isstruct);
 parse(p, varargin{:})
 
@@ -82,8 +81,6 @@ swp_dir = fullfile(swp_path, swp_name);
 
 %% On error, return matfile = ''
 matfile = '';
-
-outputdir = p.Results.outputdir;
 
 % Create MAT output filename; check if it exists
 if(~isempty(outputdir))
@@ -110,14 +107,7 @@ swp.name = swp_name;
 
 % parsing the json input file for the user supplied parameters
 json_file = p.Results.json_file
-if isempty(json_file)
-   % default json input file
-   json_file = fullfile('input', 'covis_image.json');
-   fprintf('Using default sweep config file: %s\n', json_file)
-
-else
-    fprintf('Using sweep config file %s\n', json_file)
-end
+fprintf('Using sweep config file %s\n', json_file)
 
 % check that json input file exists
 if ~exist(json_file,'file')

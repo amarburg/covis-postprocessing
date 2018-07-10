@@ -5,22 +5,15 @@
 
 %% Run sweep
 metadata = postproc_metadata();
-imagingMatFile = covis_imaging_sweep( fullfile(out_path, out_name), ...
-                                    'outputdir', tempdir(), ...
+
+workdir = string(tempdir())
+
+imagingMatFile = covis_imaging_sweep( fullfile(out_path, out_name), workdir, ...
                                     'json_file', "../../Common/input/covis_image.json", ...
                                     'metadata', metadata);
 assert(~isempty(imagingMatFile), "covis_imaging_sweep returned an empty .mat file path")
 
-clear('covis')
-loaded = load(imagingMatFile);
+validate_imaging_mat( imagingMatFile )
 
-assert(isfield(loaded,'covis'), "Returned .mat file does not contain covis variable")
-
-covis = loaded.covis;
-assert(isfield(covis,'metadata'), "covis.metadata does not exist")
-assert(~isempty(covis.metadata.gittags), "covis.metadata.gittags is empty")
-assert(~isempty(covis.metadata.gitrev), "covis.metadata.gitrev is empty")
-assert(isfield(covis, 'sweep'), "covis.sweep does not exist")
-
-
-imgfile = covis_diffuse_plot(imagingProducedMatFile, cd, '');
+imgFile = covis_imaging_plot(imagingMatFile, workdir);
+assert(~isempty(imgFile), "covis_imaging_plot returned an empty imgfile")

@@ -1,4 +1,4 @@
-function imgfile = covis_imaging_plot(matfile, varargin)
+function imgfile = covis_imaging_plot(matfile, outputdir, varargin)
 %
 % Plot covis image grid as isosurfaces
 %
@@ -25,18 +25,15 @@ function imgfile = covis_imaging_plot(matfile, varargin)
 
 % Check for other args
 p = inputParser;
-addRequired(p,'outputdir','');
-addParameter(p,'json_file','',@isstring);
+addParameter(p,'json_file',input_json_path('covis_image_plot_new.json'),@isstring);
 parse(p, varargin{:})
 
-jsonfile = p.Results.json_file
-outputdir = p.Results.outputdir
-
+json_file = p.Results.json_file
 
 imgfile = 0;
 
 % pick a mat file, if none given
-if(isempty(matfile) | (matfile == 0))
+if(isempty(matfile))
   error("Matfile %s not specified")
   return
    % [mat_name, mat_path] = uigetfile(fullfile('*.mat'), ...
@@ -66,9 +63,6 @@ grd = covis.grid; % intensity grid
 
 % parsing the json file
 %  which contains all the user supplied parameters
-if(isempty(json_file) | (json_file==0))
-   json_file = fullfile('input','covis_image_plot_new.json');
-end
 json_str = fileread(json_file);
 input = jsondecode(json_str)
 
@@ -238,38 +232,37 @@ else
 end
 
 %save plot to file
-if(exist('outputdir','var') && any(outputdir~=0) && ischar(outputdir))
+if(~isempty(outputdir))
 
-    % creat output dir if it doesn't exist
-    if(~exist(outputdir,'dir'))
-        warning(['output directory not found, will create one here: ' outputdir])
-        mkdir(outputdir);
-    end
+  % create output dir if it doesn't exist
+  if(~exist(outputdir,'dir'))
+      warning(['output directory not found, will create one here: ' outputdir])
+      mkdir(outputdir);
+  end
 
-    % always make a fig file
-    figfile = fullfile(outputdir, [input.name '.fig']);
-    if(Verbose)
-        fprintf('Saving figure as %s\n', figfile);
-    end
-    if(exist(figfile,'file'))
-        fprintf('Warning: overwiting %s\n', figfile);
-    end
-    saveas(h, figfile);
+  % always make a fig file
+  figfile = fullfile(outputdir, strcat(input.name, '.fig'));
+  if(Verbose) fprintf('Saving figure as %s\n', figfile); end
 
-    % figure type, must be one of formats that the 'saveas' function accepts
-    if(isfield(input,'format'))
-        type = input.format;
-        imgfile = fullfile(outputdir, [input.name '.' type]);
-        if(Verbose)
-            fprintf('Saving figure %s\n', imgfile);
-        end
-        if(exist(imgfile,'file'))
-            fprintf('Warning: overwiting %s\n', imgfile);
-        end
-        set(h,'PaperUnits','points','PaperPosition',[0 0 3300 2550],...
-            'PaperPositionMode', 'manual','PaperOrientation','portrait','renderer','zbuffer');
-        print(h,'-dpng','-r71',imgfile)
-%         saveas(h, imgfile);
-    end
+  if(exist(figfile,'file'))
+      fprintf('Warning: overwiting %s\n', figfile);
+  end
+  saveas(h, figfile);
+
+  % figure type, must be one of formats that the 'saveas' function accepts
+  if(isfield(input,'format'))
+      type = input.format;
+      imgfile = fullfile(outputdir, strcat(input.name,'.',type));
+      if(Verbose)
+          fprintf('Saving figure %s\n', imgfile);
+      end
+      if(exist(imgfile,'file'))
+          fprintf('Warning: overwiting %s\n', imgfile);
+      end
+      set(h,'PaperUnits','points','PaperPosition',[0 0 3300 2550],...
+          'PaperPositionMode', 'manual','PaperOrientation','portrait','renderer','zbuffer');
+      print(h,'-dpng','-r71',imgfile)
+  %         saveas(h, imgfile);
+  end
 
 end

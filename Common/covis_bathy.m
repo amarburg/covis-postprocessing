@@ -24,7 +24,7 @@ yoff = 2;
 zoff = 1;
 
 % load bathy
-load(fullfile('input','covis_bathy_1.mat'))
+load(input_json_path('covis_bathy_1.mat'))
 
 % position of Covis in UTM coords
 if(isfield(covis.sonar.position, 'easting'))
