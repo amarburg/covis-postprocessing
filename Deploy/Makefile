@@ -64,6 +64,7 @@ tmp/static_git_info.m:
 	printf "   gitinfo = struct;\n" >> $@
 	printf "   gitinfo.gitrev = \'%s\';\n" ${GITREV} >> $@
 	printf "   gitinfo.gittags = \'%s\';\n" ${GITTAG} >> $@
+	printf "   gitinfo.dockertag = \'%s\';\n" ${IMAGE} >> $@
 
 
 pycovis-matlab/setup.py: ${COVIS_REPO}/Common/*.m ${COVIS_REPO}/Imaging/*.m tmp/static_git_info.m
@@ -76,4 +77,4 @@ clean:
 		rm -rf pycovis-matlab/ tmp/
 
 
-.PHONY: build force_build test help matlab version imaging clean
+.PHONY: build force_build test help matlab version imaging clean tmp/static_git_info.m

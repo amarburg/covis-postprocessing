@@ -6,7 +6,13 @@ installed on the ONC Neptune Cabled Array at the Endeavour vent field from
 
 `Common/` ... contains Matlab code.
 
-`Test/` contains a Matlab-language test suite.    On a (Linux or Mac?) machine with Matlab installed, this test suite can be run by `make test` at the top level of this repo.
+`Test/` contains a Matlab-language test suite.    On a (Linux or Mac?) machine
+with Matlab and Gnu make installed:
+
+  * `make test` or `make unittest` will run a (relatively fast) unit test suite.
+  * `make integrationtest` will run a more thorough integration test suite.  This will
+        fully process multiple COVIS files and may take some time to run.
+
 
 The `Deploy/` directory contains code related to packaging this code as a Python library for distribution.
 

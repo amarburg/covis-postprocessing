@@ -2,7 +2,7 @@
 
 function [filename] = testfiles(mode,filetype)
 
-  [filepath,name,ext]=fileparts(mfilename('fullpath'))
+  [filepath,name,ext]=fileparts(mfilename('fullpath'));
 
   root = fullfile(filepath,"../covis-test-data/old-covis-nas1/raw/2011/10/01");
 
@@ -18,7 +18,7 @@ function [filename] = testfiles(mode,filetype)
     return
   end
 
-  filename = fullfile( root, testfiles(mode, "basename") )
+  filename = fullfile( root, testfiles(mode, "basename") );
 
   switch filetype
     case "gz"
