@@ -1,9 +1,22 @@
-function matfile = covis_imaging_sweep(swp_file, outputdir, json_file)
+function matfile = covis_imaging_sweep(swp_file, varargin)
 %
 % Process and grid covis IMAGING sweep data onto a rectangular grid.
 %
 % The inputs to this function:
-%   swp_file - the sweep archive file
+%   swp_file - the path to sweep archive file.  Function will handle
+%              either a compressed archive (.tar.gz, .zip) or
+%              an existing unpacked data directory
+%
+%   The function will also take additional optional parameters using the
+%   input parser method of giving the parameter name, then the value.
+%
+%    'outputdir' - Directory to store the resulting data structure
+%                  as a .mat file
+%                  _If not set_ data is not stored to disk
+%    'json_file' - Path to a JSON configuration file for the sweep processing
+%    'metadata'  - Matlab struct of meta-information to be included in the
+%                  struct and .mat file
+
 %   outputdir - directory to save covis structure as mat file
 %   json_file - the name of the json input parameter file
 % The return string is the mat file name that the covis data was saved.
@@ -55,31 +68,40 @@ function matfile = covis_imaging_sweep(swp_file, outputdir, json_file)
 
 global Verbose;
 
+% Check for other args
+p = inputParser;
+
+addParameter(p,'outputdir','');
+addParameter(p,'json_file','',@isstring);
+addParameter(p,'metadata',0,@isstruct);
+
+parse(p, varargin{:})
+
 % Extract a COVIS archive, if it hasn't been unpacked already
 [swp_path, swp_name] = covis_extract(swp_file, '');
 swp_dir = fullfile(swp_path, swp_name);
 
-% check that archive dir exists
-if(~exist(swp_dir))
-    error('Sweep directory does not exist\n');
-    return;
-end
+%% On error, return matfile = ''
+matfile = '';
 
+outputdir = p.Results.outputdir;
 % Create MAT output filename; check if it exists
-matfile = fullfile(outputdir, [swp_name '.mat']);
-if(exist(matfile,'file'))
-    fprintf('Warning: not overwiting %s\n', matfile);
-    return
+if(~isempty(outputdir))
+    matfile = fullfile(outputdir, strcat(swp_name, '.mat'))
+    if exist(matfile,'file')
+      fprintf('Warning: not overwiting %s\n', matfile);
+      return
+  end
 end
-
 
 % parse sweep.json file in data archive
-swp_file = 'sweep.json';
-if(~exist(fullfile(swp_dir, swp_file)))
-    error('sweep.json file does not exist');
+swp_file = fullfile(swp_dir, 'sweep.json');
+if(~exist(swp_file))
+    fprintf('sweep.json file does not exist at %s\n', swp_file);
     return;
 end
-json_str = fileread(fullfile(swp_dir, swp_file));
+
+json_str = fileread(swp_file);
 swp = jsondecode(json_str);
 
 % set sweep path and name
@@ -87,10 +109,16 @@ swp.path = swp_path;
 swp.name = swp_name;
 
 % parsing the json input file for the user supplied parameters
-if isempty(json_file) || all(json_file == 0)
+json_file = p.Results.json_file
+if isempty(json_file)
    % default json input file
    json_file = fullfile('input', 'covis_image.json');
+   fprintf('Using default sweep config file: %s\n', json_file)
+
+else
+    fprintf('Using sweep config file %s\n', json_file)
 end
+
 % check that json input file exists
 if ~exist(json_file,'file')
     fprintf('JSON input file %s does not exist\n', json_file);
@@ -102,7 +130,6 @@ if(strcmpi(covis.type, 'imaging') == 0)
     fprintf('Incorrect covis input file type\n');
     return;
 end
-
 
 
 Verbose = covis.user.verbose;
@@ -357,10 +384,15 @@ covis.processing.filter = filt;
 covis.burst = burst;
 
 % save covis structure in a mat file for later use
-if(outputdir)
+if(~isempty(matfile))
+
+  fprintf("Saving results to %s\n", matfile)
+
     if(~exist(outputdir,'dir'))
         mkdir(outputdir);
     end
+
+    covis.metadata = p.Results.metadata
 
     save(matfile,'covis');
 end

@@ -1,18 +1,26 @@
 function [swp_path, swp_name] = covis_extract(filename, outputdir)
 %
 % Extract a COVIS archive file (zip or tar.gz).
+%
+%
 % Inputs:
 %   filename - full archive name
-%   outputdir - directory to extracte the contents of filename
+%   outputdir - directory to extracte the contents of filename.
+%               If left empty (''), extracts same directory as "filename"
+%
 % Outputs:
 %   swp_path - path to extracted directory
 %   swp_name - name of extracted directory
+%
 % If filename is null or zero, the user is prompted to select
 % an archive file.
+%
 % If it has already been extracted in the same location as filename,
-% return with swp_path set to the location of the existing directory.
+% return with swp_path set to the location of the existing directory,
+% and swp_name set to the name of the directory.
+%
 % If the archive is already extracted in outputdir, return with swp_path
-% set to outputdir.
+% set to outputdir, and swp_name set to the name of the directory.
 %
 % ----------
 % This program is free software distributed in the hope that it will be useful,
@@ -47,24 +55,25 @@ if(~exist(filename, 'file'))
     return;
 end
 
-% get the file name parts
-[swp_path, swp_name, ext] = fileparts(filename);
-
-% check if archive has already been extracted in the same location
-% as the filename
-if(exist(fullfile(swp_path, swp_name), 'dir'))
+% Check if filename is a directory.
+% If so, split it into the final element (the swp_name) and the preceding
+% path (the swp_path), to match the output if it _had_ extracted the
+% directory.
+if(exist(filename, 'dir'))
     % Strip and trailing delimiters if they exist. This will let fileparts
     % correctly separate the swp_name as the last element in the path
-    filename = strip(filename,'right','/')
-    filename = strip(filename,'right','\')
+    elems = split(filename, filesep);
 
-    [swp_path, swp_name, ext] = fileparts(filename);
-    swp_name = strcat(swp_name,ext)
+    swp_name = elems(end);
+    swp_path = join( elems(1:end-1), filesep);
 
     % return with swp_path set to same location as filename
     fprintf('COVIS archive is already extracted, using %s %s\n', swp_path, swp_name);
     return;
 end
+
+% get the file name parts
+[swp_path, swp_name, ext] = fileparts(filename)
 
 % if no outputdir is given, extract it in the same location as filename
 if(isempty(outputdir))
@@ -131,11 +140,24 @@ elseif(strcmp(ext,'.tar'))
     % set new sweep path
     swp_path = outputdir;
 
+  elseif(strcmp(ext,'.7z'))
+
+    error(['Cannot handle 7z format natively (yet).  Please uncompress manually first.']);
+    return;
+
+
 else
     warning(['Unknown COVIS archive type: ''' ext '''. This will probably cause an error.']);
     swp_name = [];
     swp_path = [];
 
+    return;
+end
+
+% check that archive dir exists
+if(~exist(fullfile(swp_path, swp_name)))
+    error('Sweep directory does not exist after extraction\n');
+    return;
 end
 
 
