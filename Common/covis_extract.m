@@ -73,7 +73,7 @@ if(exist(filename, 'dir'))
 end
 
 % get the file name parts
-[swp_path, swp_name, ext] = fileparts(filename)
+[swp_path, swp_name, ext] = fileparts(filename);
 
 % if no outputdir is given, extract it in the same location as filename
 if(isempty(outputdir))
