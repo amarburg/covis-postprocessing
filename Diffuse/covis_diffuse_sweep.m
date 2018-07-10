@@ -1,4 +1,4 @@
-function [covis, matfile] = covis_diffuse_sweep(swp_path, swp_name, json_file)
+function [covis, matfile] = covis_diffuse_sweep(swp_file, outputdir, varargin)
 %
 % Process and grid covis DIFFUSE sweep data onto a rectangular grid.
 %
@@ -58,40 +58,55 @@ function [covis, matfile] = covis_diffuse_sweep(swp_path, swp_name, json_file)
 
 global Verbose;
 
+% Check for other args
+p = inputParser;
+addParameter(p,'json_file',input_json_path('covis_image.json'),@isstring);
+addParameter(p,'metadata',0,@isstruct);
+parse(p, varargin{:})
+
+% Extract a COVIS archive, if it hasn't been unpacked already
+[swp_path, swp_name] = covis_extract(swp_file, '');
 swp_dir = fullfile(swp_path, swp_name);
 
-% check that archive dir exists
-if(~exist(swp_dir))
-    error('Sweep directory does not exist\n');
-    return;
+%% On error, return matfile = ''
+matfile = "";
+covis = struct;
+
+% Create MAT output filename; check if it exists
+if(~isempty(outputdir))
+    matfile = string(fullfile(outputdir, strcat(swp_name, '.mat')));
+    if exist(matfile,'file')
+      fprintf('Warning: not overwiting %s\n', matfile);
+      return
+  end
 end
 
 % parse sweep.json file in data archive
-swp_file = 'sweep.json';
-if(~exist(fullfile(swp_dir, swp_file)))
-    error('sweep.json file does not exist\n');
+swp_file = fullfile(swp_dir, 'sweep.json');
+if(~exist(swp_file))
+    fprintf('sweep.json file does not exist at %s\n', swp_file);
     return;
 end
-json_str = fileread(fullfile(swp_dir, swp_file));
-swp = parse_json(json_str);
+
+json_str = fileread(swp_file);
+swp = jsondecode(json_str);
 
 % set sweep path and name
 swp.path = swp_path;
 swp.name = swp_name;
 
 % parsing the json input file for the user supplied parameters
-if isempty(json_file) || all(json_file == 0)
-   % default json input file
-   json_file = fullfile('input', 'covis_diffuse.json');
-end
+json_file = p.Results.json_file
+fprintf('Using sweep config file %s\n', json_file)
+
 % check that json input file exists
 if ~exist(json_file,'file')
-    error('JSON input file does not exist');
+    fprintf('JSON input file %s does not exist\n', json_file);
     return;
 end
 json_str = fileread(json_file);
-covis = parse_json(json_str);
-if(strcmp(lower(covis.type), 'diffuse') == 0)
+covis = jsondecode(json_str);
+if(strcmpi(covis.type, 'diffuse') == 0)
     fprintf('Incorrect covis input file type\n');
     return;
 end
@@ -99,11 +114,18 @@ end
 Verbose = covis.user.verbose;
 Debug_Plot = covis.user.debug;
 
+disp(covis.grid)
+
 % define a 2D rectangular data grid
-for n=1:length(covis.grid)
-   [covis.grid{n}] = covis_rectgrid(covis.grid{n}); % corr grid
-   covis.grid{n}.name = swp.name;
+newgrid = struct(covis_rectgrid(covis.grid(1))) % corr grid
+newgrid.name = swp.name
+for n=2:length(covis.grid)
+  grd = covis_rectgrid(covis.grid(n)) % corr grid
+  grd.name = swp.name;
+  newgrid(n) = grd
 end
+
+covis.grid = newgrid
 
 % set local copies of covis structs
 usr = covis.user;
@@ -328,7 +350,7 @@ end
 % grid the data, loop over different grid types
 for n = 1:length(covis.grid)
 
-    grd = covis.grid{n};
+    grd = covis.grid(n);
 
     switch lower(grd.type)
         case 'decorrelation'
@@ -353,7 +375,7 @@ for n = 1:length(covis.grid)
     m = find(grd.w);
     grd.v(m) = grd.v(m)./grd.w(m);
 
-    covis.grid{n} = grd;
+    covis.grid(n) = grd;
 
 end
 
@@ -380,12 +402,18 @@ if(~exist(usr.outpath,'dir'))
     end
 end
 
-matfile = fullfile(usr.outpath, strcat(covis.sweep.name, '.mat'));
-if(exist(matfile,'file'))
-    fprintf('Warning: overwiting %s\n', matfile);
-end
-save(matfile,'covis');
+if(~isempty(matfile))
 
+  fprintf("Saving results to %s\n", matfile)
+
+    if(~exist(outputdir,'dir'))
+        mkdir(outputdir);
+    end
+
+    covis.metadata = p.Results.metadata
+
+    save(matfile,'covis');
+end
 
 if(Debug_Plot)
 

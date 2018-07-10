@@ -1,4 +1,4 @@
-function matfile = covis_imaging_sweep(swp_file, outputdir, varargin)
+function [covis,matfile] = covis_imaging_sweep(swp_file, outputdir, varargin)
 %
 % Process and grid covis IMAGING sweep data onto a rectangular grid.
 %
@@ -80,7 +80,8 @@ parse(p, varargin{:})
 swp_dir = fullfile(swp_path, swp_name);
 
 %% On error, return matfile = ''
-matfile = '';
+matfile = "";
+covis = struct;
 
 % Create MAT output filename; check if it exists
 if(~isempty(outputdir))

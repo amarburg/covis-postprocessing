@@ -96,7 +96,7 @@ switch(lower(sweep.mode))
     case {'imaging', 'dockimaging'}
         % json_proc_file = fullfile('input','covis_image.json');
         % covis = covis_imaging_sweep_kgb(swp_path, swp_name, json_proc_file);
-        matfile = covis_imaging_sweep(swp_dir, outputdir, varargin{:});
+        [covis,matfile] = covis_imaging_sweep(swp_dir, outputdir, varargin{:});
 
         % diffuse mode
     case {'diffuse', 'dockdiffuse', 'sonartest'}

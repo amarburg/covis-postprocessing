@@ -5,12 +5,14 @@ help:
 ## By default run the shorter unit test
 test: unittest
 
+ALL_PATHS='..','../../Imaging','../../Diffuse','../../Doppler','../../Common'
+
 unittest: covis_test_data
 	git tag -d test && git tag test
-	cd Test/Unit/ && matlab -nodisplay -nosplash -r "  addpath('..','../../Imaging','../../Common'); result = runtests(); disp(result); exit()"
+	cd Test/Unit/ && matlab -nodisplay -nosplash -r "  addpath(${ALL_PATHS}); result = runtests(); disp(result); exit()"
 
 integrationtest: covis_test_data
-	cd Test/Integration/ && matlab -nodisplay -nosplash -r "  addpath('..','../../Imaging','../../Common'); result = runtests(); disp(result); exit()"
+	cd Test/Integration/ && matlab -nodisplay -nosplash -r "  addpath(${ALL_PATHS}); result = runtests(); disp(result); exit()"
 
 
 

@@ -1,20 +1,22 @@
-function [h, covis, imgfile] = covis_diffuse_plot(swp_path, covis, json_file)
+function imgfile = covis_diffuse_plot(matfile, outputdir, varargin)
+%
+%function [h, covis, imgfile] = covis_diffuse_plot(swp_path, covis, varargin)
 %
 % Plot covis diffuse grid
 %
 % Inputs:
 %
 % ----------
-% This program is free software distributed in the hope that it will be useful, 
+% This program is free software distributed in the hope that it will be useful,
 % but WITHOUT ANY WARRANTY. You can redistribute it and/or modify it.
-% Any modifications of the original software must be distributed in such a 
+% Any modifications of the original software must be distributed in such a
 % manner as to avoid any confusion with the original work.
-% 
-% Please acknowledge the use of this software in any publications arising  
+%
+% Please acknowledge the use of this software in any publications arising
 % from research that uses it.
-% 
+%
 % ---------------------------
-%  Version 1.0 - 10/2010,  
+%  Version 1.0 - 10/2010,
 %    cjones@apl.washington.edu, drj@apl.washington.edu
 
 % normalize the data for now
@@ -27,23 +29,41 @@ function [h, covis, imgfile] = covis_diffuse_plot(swp_path, covis, json_file)
 
 % do_plot_bathy = 1;
 
-% parsing the json file
-%  which contains all the user supplied parameters
-if(isempty(json_file) || (json_file==0)) 
-   json_file = fullfile('input','covis_diffuse_plot.json');
+% Check for other args
+p = inputParser;
+addParameter(p,'json_file',input_json_path('covis_diffuse_plot.json'),@isstring);
+parse(p, varargin{:})
+
+json_file = p.Results.json_file;
+
+% pick a mat file, if none given
+if(isempty(matfile))
+  error("Matfile %s not specified")
+  return
 end
+
+% check that archive dir exists
+if(~exist(matfile))
+    error('Covis .mat file \"%s\" does not exist', matfile);
+    return;
+end
+
+% load the covis gridded data
+load(matfile);
+
+
 json_str = fileread(json_file);
 input = parse_json(json_str);
 
 % make local copies of the grids
 for n=1:length(covis.grid)
-    switch lower(covis.grid{n}.type)
+    switch lower(covis.grid(n).type)
         case {'decorrelation'}
-            grd = covis.grid{n}; % decorr grid
+            grd = covis.grid(n); % decorr grid
         case 'intensity'
-            I_grd = covis.grid{n}; % intensity grid
+            I_grd = covis.grid(n); % intensity grid
         case 'decorrelation intensity'
-            dI_grd = covis.grid{n}; % decorr intensity grid
+            dI_grd = covis.grid(n); % decorr intensity grid
         otherwise disp('Unknown grid type.')
     end
 end
@@ -104,11 +124,11 @@ if strcmp(grd.type, 'decorrelation')
 elseif strcmp(grd.type, 'decorrelation intensity')
     caxis([-30 0]);
     %axis([-50 50 -50 50 -10 40]);
-    titleText = 'Decorrelation Intensity (dB re max)';    
+    titleText = 'Decorrelation Intensity (dB re max)';
 else
     caxis([-30 0]);
     %axis([-50 50 -50 50 -10 40]);
-    titleText = 'Intensity (dB re max)';    
+    titleText = 'Intensity (dB re max)';
 end
 
 %if(isfield(grd,'name'))
@@ -137,32 +157,32 @@ end
 type = input.format;
 
 %save plot to file
-if(isfield(input,'outpath'))
+if(~isempty(outputdir))
     % swp_path is also applied to determine directory for output files
-    input.outpath=strcat(swp_path,input.outpath); 
-    
-   if ~exist(input.outpath,'dir') 
-       if ~isempty(input.outpath)
-           mkdir(input.outpath); 
+    %input.outpath=strcat(swp_path,input.outpath);
+
+   if ~exist(outputdir,'dir')
+       if ~isempty(outputdir)
+           mkdir(outputdir);
        end
    end
 
-   imgfile = fullfile(input.outpath, [grd.name '.' type]);
+   imgfile = fullfile(outputdir, strcat(grd.name,'.',type));
 
-   if(exist(imgfile,'file')) 
+   if(exist(imgfile,'file'))
       fprintf('Warning: overwiting %s\n', imgfile);
    end
-   
+
    set(h,'PaperUnits','points','PaperPosition',[0 0 3300 2550],...
         'PaperPositionMode', 'manual','PaperOrientation','portrait','renderer','zbuffer');
    print(h,'-dpng','-r71',imgfile)
    %saveas(h, imgfile);
-   
+
 end
 
 if covis.user.debug
     figure(fig_num+1); clf;
-    pcolor(x, y, v2); 
+    pcolor(x, y, v2);
     shading flat; axis equal;
 
     if strcmp(grd.type, 'decorrelation')
@@ -172,15 +192,12 @@ if covis.user.debug
     elseif strcmp(grd.type, 'decorrelation intensity')
         caxis([-30 0]);
         %axis([-50 50 -50 50 -10 40]);
-        title('Decorrelation Intensity (dB re max)')    
+        title('Decorrelation Intensity (dB re max)')
     else
         caxis([-30 0]);
         %axis([-50 50 -50 50 -10 40]);
-        title('Intensity (dB re max)')    
+        title('Intensity (dB re max)')
     end
 end
 
 end
-
-
-

@@ -1,4 +1,4 @@
-function validate_imaging_mat(filename)
+function validate_diffuse_mat(filename)
 
   clear('covis')
   loaded = load(filename);

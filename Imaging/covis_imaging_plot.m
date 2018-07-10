@@ -28,7 +28,7 @@ p = inputParser;
 addParameter(p,'json_file',input_json_path('covis_image_plot_new.json'),@isstring);
 parse(p, varargin{:})
 
-json_file = p.Results.json_file
+json_file = p.Results.json_file;
 
 imgfile = 0;
 
@@ -64,7 +64,7 @@ grd = covis.grid; % intensity grid
 % parsing the json file
 %  which contains all the user supplied parameters
 json_str = fileread(json_file);
-input = jsondecode(json_str)
+input = jsondecode(json_str);
 
 if(isfield(input,'verbose'))
     Verbose = input.verbose;
