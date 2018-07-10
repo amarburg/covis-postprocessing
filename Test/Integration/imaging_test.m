@@ -23,4 +23,4 @@ assert(~isempty(covis.metadata.gitrev), "covis.metadata.gitrev is empty")
 assert(isfield(covis, 'sweep'), "covis.sweep does not exist")
 
 
-%imgfile = covis_diffuse_plot(imagingProducedMatFile, cd, '');
+imgfile = covis_diffuse_plot(imagingProducedMatFile, cd, '');

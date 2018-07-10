@@ -1,4 +1,4 @@
-function imgfile = covis_imaging_plot(matfile, outputdir, json_file)
+function imgfile = covis_imaging_plot(matfile, varargin)
 %
 % Plot covis image grid as isosurfaces
 %
@@ -22,21 +22,34 @@ function imgfile = covis_imaging_plot(matfile, outputdir, json_file)
 %    cjones@apl.washington.edu
 %
 
+
+% Check for other args
+p = inputParser;
+addRequired(p,'outputdir','');
+addParameter(p,'json_file','',@isstring);
+parse(p, varargin{:})
+
+jsonfile = p.Results.json_file
+outputdir = p.Results.outputdir
+
+
 imgfile = 0;
 
 % pick a mat file, if none given
 if(isempty(matfile) | (matfile == 0))
-   [mat_name, mat_path] = uigetfile(fullfile('*.mat'), ...
-       'Pick a COVIS MAT file');
-   if(mat_name == 0)
-      return;
-   end
-   matfile = fullfile(mat_path, mat_name);
+  error("Matfile %s not specified")
+  return
+   % [mat_name, mat_path] = uigetfile(fullfile('*.mat'), ...
+   %     'Pick a COVIS MAT file');
+   % if(mat_name == 0)
+   %    return;
+   % end
+   % matfile = fullfile(mat_path, mat_name);
 end
 
 % check that archive dir exists
 if(~exist(matfile))
-    error('Covis .mat file does not exist');
+    error('Covis .mat file \"%s\" does not exist', matfile);
     return;
 end
 

@@ -71,11 +71,9 @@ global Verbose;
 
 % Check for other args
 p = inputParser;
-
 addParameter(p,'outputdir','');
 addParameter(p,'json_file','',@isstring);
 addParameter(p,'metadata',0,@isstruct);
-
 parse(p, varargin{:})
 
 % Extract a COVIS archive, if it hasn't been unpacked already
