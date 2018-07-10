@@ -19,6 +19,7 @@ function matfile = covis_imaging_sweep(swp_file, varargin)
 
 %   outputdir - directory to save covis structure as mat file
 %   json_file - the name of the json input parameter file
+%
 % The return string is the mat file name that the covis data was saved.
 %
 % The sweep archive directory contains a set of files for each Covis sweep.
@@ -85,9 +86,10 @@ swp_dir = fullfile(swp_path, swp_name);
 matfile = '';
 
 outputdir = p.Results.outputdir;
+
 % Create MAT output filename; check if it exists
 if(~isempty(outputdir))
-    matfile = fullfile(outputdir, strcat(swp_name, '.mat'))
+    matfile = fullfile(outputdir, strcat(swp_name, '.mat'));
     if exist(matfile,'file')
       fprintf('Warning: not overwiting %s\n', matfile);
       return
