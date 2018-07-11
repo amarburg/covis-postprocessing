@@ -1,4 +1,4 @@
-function [covis] = covis_process_sweep(swp_path, swp_name)
+function matfile = covis_process_sweep(filename, outputdir, varargin)
 
 %
 % COVIS_PROCESS_SWEEP
@@ -75,112 +75,54 @@ function [covis] = covis_process_sweep(swp_path, swp_name)
 
 close all; % close all open figures and files
 
-rm_swp_dir = 1;
+% Check for other args
+p = inputParser;
+addParameter(p,'json_file','',@isstring);
+addParameter(p,'metadata',0,@isstruct);
+parse(p, varargin{:})
 
-if(swp_path == 0) swp_path = []; end
-if(swp_name == 0) swp_name = []; end
-
-json_path = 'input';
-
-% pick a sweep archive, if none given
-if(isempty(swp_name))
-    [swp_name, swp_path] = uigetfile(fullfile(swp_path,'*.*'), ...
-        'Pick a COVIS Sweep Archive');
-    if(swp_name == 0)
-        covis = [];
-        return;
-    end;
-end
-
-[pathstr, name, ext] = fileparts(fullfile(swp_path,swp_name));
-problem_path = swp_path(1:27);
-fid = fopen(fullfile(problem_path,'problem.txt'),'w');
-% if a zip file is given, and the archive dir doesn't exist,
-% unzip the sweep archive
-if(strcmp(ext,'.zip'))
-    % unzip file, if doesn't exist
-    if(~exist(fullfile(pathstr,name),'file'))
-        try
-            files = unzip(fullfile(swp_path, swp_name), pathstr);
-        catch me
-            disp(['unable to unzip ',swp_name]);
-            fprintf(fid,['\n unable to unzip ',swp_name]);
-            return;
-        end
-        % check if zip file has been renamed
-        fprintf('file name from unzip = %s\n',files{1})
-        [zip_dir,zip_name,zip_ext] = fileparts(files{1});
-        swp_dir = fileparts(fullfile(zip_dir,zip_name));
-        fprintf('unzip file name corrected = %s\n',swp_dir)
-        fprintf('file name from input dir and name = %s\n',fullfile(pathstr,name))
-        if ~strcmp(swp_dir, fullfile(pathstr,name))
-            movefile(swp_dir, fullfile(pathstr,name));
-        end
-    end
-    swp_name = name;
-end
-
-% if a tar.gz file is given, and the archive dir doesn't exist,
-% untar the sweep archive
-if(strcmp(ext,'.gz'))
-    [pathstr, name, ext] = fileparts(fullfile(swp_path,name));
-    if(~strcmp(ext,'.tar'))
-        fprintf('Unknown Covis rchive type\n');
-        covis = [];
-        return;
-    end;
-    % untar file, if doesn't exist
-    if(~exist(fullfile(pathstr,name)))
-        files = untar(fullfile(swp_path, swp_name), pathstr);
-        % check if tar file has been renamed
-        swp_dir = fileparts(files{1});
-        if ~strcmp(swp_dir, fullfile(pathstr,name))
-            movefile(swp_dir, fullfile(pathstr,name));
-        end
-    end
-    swp_name = name;
-end
+% Extract a COVIS archive, if it hasn't been unpacked already
+[swp_path, swp_name] = covis_extract(filename, '');
+swp_dir = fullfile(swp_path, swp_name);
 
 % parse sweep.json file in data archive
-swp_file = 'sweep.json';
-json_str = fileread(fullfile(swp_path, swp_name, swp_file));
+json_str = fileread(fullfile(swp_dir, 'sweep.json'));
 sweep = parse_json(json_str);
 
 % Process and plot the sweep depending on mode
 switch(lower(sweep.mode))
-    
+
     % imaging mode
     case {'imaging', 'dockimaging'}
-        json_proc_file = fullfile('input','covis_image.json');
-        covis = covis_imaging_sweep_kgb(swp_path, swp_name, json_proc_file);
-        
+        % json_proc_file = fullfile('input','covis_image.json');
+        % covis = covis_imaging_sweep_kgb(swp_path, swp_name, json_proc_file);
+        [covis,matfile] = covis_imaging_sweep(swp_dir, outputdir, varargin{:});
+
         % diffuse mode
     case {'diffuse', 'dockdiffuse', 'sonartest'}
-        json_proc_file = fullfile('input','covis_diffuse.json');
-        [covis] = covis_diffuse_sweep_xgy(swp_path, swp_name, json_proc_file);
-        
+        % json_proc_file = fullfile('input','covis_diffuse.json');
+        %[covis] = covis_diffuse_sweep_xgy(swp_path, swp_name, json_proc_file);
+
         % doppler mode
     case {'doppler', 'dockdoppler'}
         %fprintf('Input file was DOPPLER mode; processing disabled in this version\n')
-        fprintf('Input file was DOPPLER mode\n');
-        json_proc_file=fullfile('input','covis_doppler.josn');
-        [covis] = covis_doppler_sweep(swp_path,swp_name,json_proc_file);
-        
+        % fprintf('Input file was DOPPLER mode\n');
+        % % json_proc_file=fullfile('input','covis_doppler.josn');
+        % [covis] = covis_doppler_sweep(swp_path,swp_name,json_proc_file);
+
         % bathy mode
     case {'bathy'}
-        json_proc_file = fullfile('input','covis_bathy.json');
-        covis = covis_bathy_sweep(swp_path, swp_name, json_proc_file);
-        
+        % json_proc_file = fullfile('input','covis_bathy.json');
+        % covis = covis_bathy_sweep(swp_path, swp_name, json_proc_file);
+
     otherwise
         disp('Unknown sweep mode.')
-        
+
 end
 
 % clean up by deleting the sweep directory
-if(rm_swp_dir)
-    rmdir(fullfile(swp_path, swp_name),'s');
-end
+% if(rm_swp_dir)
+%     rmdir(swp_dir,'s');
+% end
 
 end
-
-

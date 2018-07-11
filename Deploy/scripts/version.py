@@ -1,11 +1,7 @@
-import pytest
-import pycovis.postprocess as postprocess
+from pycovis.postprocess import runtime
 
 
-postprocess.initialize_runtime(['-nojvm','-nodisplay'])
-pp=postprocess.initialize()
+with runtime.Runtime() as pp:
 
-print("Matlab version:               %s" % pp.version() )
-print("COVIS postprocessing version: %s" % pp.covis_version() )
-
-pp.terminate()
+    print("Matlab version:               %s" % pp.version() )
+    print("COVIS postprocessing version: %s" % pp.covis_version() )

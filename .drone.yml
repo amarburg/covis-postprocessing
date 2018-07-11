@@ -62,6 +62,14 @@ pipeline:
       - docker_password
 
 
+  trigger-downstream:
+    image: plugins/downstream
+    server: https://drone.san.apl.washington.edu:8000
+    fork: true
+    repositories:
+      - ${DRONE_REPO_OWNER}/covis-worker
+    secrets: [ downstream_token ]
+
   # rebuild_cache:
   #   image: drillster/drone-volume-cache:latest
   #   rebuild: true

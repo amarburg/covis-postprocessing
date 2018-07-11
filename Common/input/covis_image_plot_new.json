@@ -34,7 +34,8 @@
            "units": "db",
            "value": -60,
            "color": [0.5,0,0.5],
-           "alpha": 0.4        },
+           "alpha": 0.4
+        },
         {  "type": "vss",
            "units": "db",
            "value": -50,
@@ -44,4 +45,3 @@
     ]
 
 }
-
