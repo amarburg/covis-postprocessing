@@ -26,7 +26,7 @@ test: build
 	docker run --rm \
 						-v $(shell pwd)/../covis-test-data/old-covis-nas1/raw/2011/10/01/:/input \
 						-v $(shell pwd)/output:/output \
-						${IMAGE} -m pytest
+						${IMAGE} -m pytest --capture=no
 
 
 
