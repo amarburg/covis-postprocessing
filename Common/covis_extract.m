@@ -38,6 +38,9 @@ function [swp_path, swp_name] = covis_extract(filename, outputdir)
 swp_path = 0;
 swp_name = 0;
 
+% Ensure it's a string before processing...
+filename = string(filename);
+
 % pick a sweep archive, if none given
 if(isempty(filename))
     error('No filename specified')
