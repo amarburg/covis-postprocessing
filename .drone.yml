@@ -13,7 +13,7 @@ pipeline:
   ## Build Matlab extension on remote machine
   build_matlab:
     image: amarburg/remote-compile:latest
-    hosts: matlab.san.apl.washington.edu
+    hosts: 192.168.14.10
     user: matlab
     target: tempdir
     exclude: .git/
