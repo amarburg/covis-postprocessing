@@ -26,12 +26,12 @@ switch(lower(covis.sweep.mode))
     case {'imaging', 'dockimaging'}
         % json_proc_file = fullfile('input','covis_image.json');
         % covis = covis_imaging_sweep_kgb(swp_path, swp_name, json_proc_file);
-        matfile = covis_imaging_plot(covis, outputdir, varargin{:});
+        imgfile = covis_imaging_plot(covis, outputdir, varargin{:});
 
         % diffuse mode
     case {'diffuse', 'dockdiffuse', 'sonartest'}
         % json_proc_file = fullfile('input','covis_diffuse.json');
-        matfile = covis_diffuse_plot(covis, outputdir, varargin{:});
+        imgfile = covis_diffuse_plot(covis, outputdir, varargin{:});
 
         % doppler mode
     case {'doppler', 'dockdoppler'}
@@ -49,5 +49,9 @@ switch(lower(covis.sweep.mode))
         disp('Unknown sweep mode.')
 
 end
+
+% Python wrapper doesn't handle strings properly right now.
+% Ensure imgfile is a char vector (for now)
+imgfile = char(imgfile)
 
 end

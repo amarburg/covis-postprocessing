@@ -120,8 +120,8 @@ switch(lower(sweep.mode))
 
 end
 
-% Python wrapper doesn't handle strings properly right now.  Ensure it's a
-% char vector instead
+% Python wrapper doesn't handle strings properly right now.
+% Ensure matfile is a char vector (for now)
 matfile = char(matfile)
 
 % clean up by deleting the sweep directory

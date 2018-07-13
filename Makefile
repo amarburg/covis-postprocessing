@@ -1,9 +1,10 @@
 help:
-	@echo "make unittest (or make test)        Runs Matlab-based unit test suite (from command line) -- runs quickly"
-	@echo "make integrationtest                Runs Matlab-based integration test suite (from command line) -- may run slowly"
+	@echo "make unittest                Runs Matlab-based unit test suite (from command line) -- runs quickly"
+	@echo "make integrationtest         Runs Matlab-based integration test suite (from command line) -- may run slowly"
+	@echo "make test                    Run both of the above tests"
 
 ## By default run the shorter unit test
-test: unittest
+test: unittest integrationtest
 
 ALL_PATHS='..','../../Imaging','../../Diffuse','../../Doppler','../../Common'
 

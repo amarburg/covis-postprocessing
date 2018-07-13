@@ -21,7 +21,8 @@ diffuseMatFile = covis_process_sweep( testfiles('diffuse', 'gz'), tempdir(), ...
 assert(~isempty(diffuseMatFile), "covis_imaging_sweep returned an empty .mat file path")
 validate_imaging_mat( diffuseMatFile )
 
-covis_plot_sweep(diffuseMatFile, tempdir())
+plotFile = covis_plot_sweep(diffuseMatFile, tempdir())
+assert(~isempty(plotFile), "covis_plot_sweep returned an empty .fig file path")
 
 
 
@@ -36,7 +37,8 @@ imagingMatFile = covis_process_sweep( fullfile(out_path, out_name), tempdir(), .
 assert(~isempty(imagingMatFile), "covis_imaging_sweep returned an empty .mat file path")
 validate_imaging_mat( imagingMatFile )
 
-covis_plot_sweep(imagingMatFile, tempdir())
+plotFile = covis_plot_sweep(imagingMatFile, tempdir())
+assert(~isempty(plotFile), "covis_plot_sweep returned an empty .fig file path")
 
 
 

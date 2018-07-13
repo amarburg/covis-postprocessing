@@ -145,12 +145,12 @@ elseif(strcmp(ext,'.tar'))
 
   elseif(strcmp(ext,'.7z'))
 
-    error(['Cannot handle 7z format natively (yet).  Please uncompress manually first.']);
+    error("Cannot handle 7z format natively (yet).  Please uncompress manually first.");
     return;
 
 
 else
-    warning(['Unknown COVIS archive type: ''' ext '''. This will probably cause an error.']);
+    warning("Unknown COVIS archive type: %s . This will probably cause an error.", ext);
     swp_name = [];
     swp_path = [];
 
