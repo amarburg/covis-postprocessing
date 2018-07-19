@@ -18,7 +18,7 @@ pipeline:
     target: tempdir
     exclude: .git/
     script:
-      - cd Deploy && make build_matlab
+      - cd Deploy && make matlab
     secrets: [ ssh_privkey ]
 
   ## Build a test docker image
