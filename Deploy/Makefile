@@ -1,6 +1,6 @@
 
 
-IMAGE = amarburg/covis-postprocess:latest
+IMAGE = amarburg/covis-postprocess:R2018a
 
 help:
 	@echo "make matlab          Use Matlab compiler to build Python package 'pycovis-postprocess'"
@@ -59,7 +59,7 @@ GITREV=${shell git rev-parse HEAD }
 GITTAG=${shell git describe --tags --exact-match }
 
 ## How write a Makefile rule which will only rebuild if the Git commit has changed?
-tmp/static_git_info.m: ../.git/logs/HEAD
+tmp/static_git_info.m: ../.git/index
 	mkdir -p tmp/
 	echo "function [gitinfo] = static_git_info()" > $@
 	printf "   gitinfo = struct;\n" >> $@
