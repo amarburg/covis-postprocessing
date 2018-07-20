@@ -63,9 +63,11 @@ tmp/static_git_info.m: ../.git/index
 	mkdir -p tmp/
 	echo "function [gitinfo] = static_git_info()" > $@
 	printf "   gitinfo = struct;\n" >> $@
-	printf "   gitinfo.gitrev = \'%s\';\n" ${GITREV} >> $@
-	printf "   gitinfo.gittags = \'%s\';\n" ${GITTAG} >> $@
-	printf "   gitinfo.dockertag = \'%s\';\n" ${IMAGE} >> $@
+	printf "   gitinfo.gitrev = '%s';\n" ${GITREV} >> $@
+	printf "   gitinfo.gittags = '%s';\n" ${GITTAG} >> $@
+	printf "   gitinfo.dockertag = '%s';\n" ${IMAGE} >> $@
+
+	cat $@
 
 
 MFILES = ${COVIS_REPO}/Common/*.m \
