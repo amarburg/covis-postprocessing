@@ -16,7 +16,6 @@ pipeline:
     hosts: matlab.san.apl.washington.edu
     user: matlab
     target: tempdir
-    exclude: .git/
     script:
       - cd Deploy && make matlab
     secrets: [ ssh_privkey ]
